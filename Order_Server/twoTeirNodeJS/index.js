@@ -16,14 +16,7 @@ const { text, response } = require('express');
 const e = require('express');
 
 const app = express();
-app.get('/', (req, res) => {
-    res.send('Hello world!!!');
-});
-app.get('/CATALOG_WEBSERVICE_IP', (req, res) => {
-    let result = catalog.map(o => ({ id: parseInt(o.id), price: parseInt(o.price), tittle: o.tittle, quantity: parseInt(o.quantity), topic: o.topic }));
-    res.send(result);
-});
-app.get('/CATALOG_WEBSERVICE_IP/buy/:itemNUM', (req, res) => {
+app.post('/CATALOG_WEBSERVICE_IP/buy/:itemNUM', (req, res) => {
    // let Book = catalog.filter((c => c.id === req.params.itemNUM));
    // if (!Book) res.status(404).send('The Book is not found!');
    let data = '';
