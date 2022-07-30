@@ -2,12 +2,13 @@ const express = require('express'); //using express to creat API's
 const { text } = require('express');
 const e = require('express');
 const https = require('http');
+const cache = require('/home/front/Desktop/frontend/routeCache.js');
 const app = express();
 //var parse_Info;
 //var parse_Search;
 var parse_Pruchase;
 var result = []
-app.get('/CATALOG_WEBSERVICE_IP/search/:itemName', (req, res) => { //search about specific topic
+app.get('/CATALOG_WEBSERVICE_IP/search/:itemName', cache(300) ,(req, res) => { //search about specific topic
     let data = '';
     let parse_Search;
    //send the request for catalog server
@@ -31,7 +32,7 @@ res.on('end', () => {// if exist
 res.send(result);//returend value
 });
 
-app.get('/CATALOG_WEBSERVICE_IP/info/:itemNUM', (req, res) => {//query to give info using item number
+app.get('/CATALOG_WEBSERVICE_IP/info/:itemNUM',cache(300),(req, res) => {//query to give info using item number
     let data = '';
     let parse_Info;
     //send request to catalog server to give info for book due to item number
@@ -57,7 +58,7 @@ app.get('/CATALOG_WEBSERVICE_IP/info/:itemNUM', (req, res) => {//query to give i
     res.send(result);//returend value
     });
     
-app.get('/CATALOG_WEBSERVICE_IP/pruchase/:itemNUM', (req, res) => {//query to buy a specific book, it will send the request to order server
+app.get('/CATALOG_WEBSERVICE_IP/pruchase/:itemNUM',cache(300), (req, res) => {//query to buy a specific book, it will send the request to order server
     let data = '';
  https.get(`http://10.0.2.7:3000/CATALOG_WEBSERVICE_IP/buy/${req.params.itemNUM}`, (res) => {//send the request to order server
  res.on('data', (chunk) => {
