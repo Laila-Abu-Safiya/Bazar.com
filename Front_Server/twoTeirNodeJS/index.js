@@ -1,39 +1,18 @@
 const express = require('express'); //using express to creat API's
 const { text } = require('express');
-const e = require('express');
+
 const https = require('http');
 const app = express();
 var parse_Info;
 var parse_Search;
 var parse_Pruchase;
+var flag = 1;
+var flag1 = 1;
 app.get('/CATALOG_WEBSERVICE_IP/search/:itemName', (req, res1) => { //search about specific topic
-    let data = '';
-   //send the request for catalog server
-//send request to catalog server to give info for book due to item number
-https.get(`http://192.168.0.15:9001/CATALOG_WEBSERVICE_IP/find/${req.params.itemName}`, (res) => {//request to catalog server to check if the book exist an quantity>0
-res.on('data', (chunk) => {
-    data += chunk;
-});
-res.on('end', () => {// if exist 
-    //parse_Search = JSON.parse(data);
-  parse_Search = data
-  res1.send(parse_Search);//returend value
-
-});
-})
-
-.on('error', (error) => {
-    console.log(error);//if theres an error
-});
-
-
-});
-
-app.get('/CATALOG_WEBSERVICE_IP/info/:itemNUM', (req, res1) => {//query to give info using item number
     let data = '';
     //consloe.log("kareem")
     //send request to catalog server to give info for book due to item number
-    https.get(`http://192.168.0.15:9001/CATALOG_WEBSERVICE_IP/getInfo/${req.params.itemNUM}`, (res) => {//request to catalog server to check if the book exist an quantity>0
+    https.get(`http://localhost:5001/CATALOG_WEBSERVICE_IP/cachefind/${req.params.itemName}`, (res) => {//request to catalog server to check if the book exist an quantity>0
     res.on('data', (chunk) => {
         data += chunk;
     });
@@ -41,17 +20,40 @@ app.get('/CATALOG_WEBSERVICE_IP/info/:itemNUM', (req, res1) => {//query to give 
         if(data.length === 0){
             parse_Info = "The Book is not found"
         }
-        else {parse_Info = JSON.parse(data); }
+        else {parse_Info = (data); }
         res1.send(parse_Info);//returend value
 
      
     });
     })
-    
     .on('error', (error) => {
         console.log(error);//if theres an error
+    })
+});
+
+app.get('/CATALOG_WEBSERVICE_IP/info/:itemNUM', (req, res1) => {//query to give info using item number
+    let data = '';
+    //consloe.log("kareem")
+    //send request to catalog server to give info for book due to item number
+    https.get(`http://localhost:5001/CATALOG_WEBSERVICE_IP/cacheInfo/${req.params.itemNUM}`, (res) => {//request to catalog server to check if the book exist an quantity>0
+    res.on('data', (chunk) => {
+        data += chunk;
     });
+    res.on('end', () => {// if exist 
+        if(data.length === 0){
+            parse_Info = "The Book is not found"
+        }
+        else {parse_Info = (data); }
+         res1.send(parse_Info);//returend value
+
+     
     });
+    })
+    .on('error', (error) => {
+        console.log(error);//if theres an error
+    })
+    });
+
     
 app.get('/CATALOG_WEBSERVICE_IP/pruchase/:itemNUM', (req, res1) => {//query to buy a specific book, it will send the request to order server
     let data = '';
@@ -61,7 +63,6 @@ app.get('/CATALOG_WEBSERVICE_IP/pruchase/:itemNUM', (req, res1) => {//query to b
  });
  res.on('end', () => {
     console.log(data)
-    //parse_Pruchase = JSON.parse(data); //returned data
     parse_Pruchase = data;
     if(!parse_Pruchase) res1.status(404).send('The Book is not found!'); //if it's null, that's mean book not available
     else {res1.send("Bought successfuly!");}//if exist return bought list
@@ -74,4 +75,4 @@ app.get('/CATALOG_WEBSERVICE_IP/pruchase/:itemNUM', (req, res1) => {//query to b
 });
 
 const port = process.env.PORT||5000;//port listining to request
-app.listen(port, () => console.log(` Listeningon port $ { port }...`))
+app.listen(port, () => console.log(` Listeningon port ${ port }...`))
