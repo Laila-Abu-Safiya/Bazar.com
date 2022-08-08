@@ -16,18 +16,19 @@ const { text, response } = require('express');
 const e = require('express');
 
 const app = express();
-app.post('/CATALOG_WEBSERVICE_IP/buy/:itemNUM', (req, res) => {
+app.get('/CATALOG_WEBSERVICE_IP/buy/:itemNUM', (req, res) => {
    // let Book = catalog.filter((c => c.id === req.params.itemNUM));
    // if (!Book) res.status(404).send('The Book is not found!');
    let data = '';
    let parse;
-https.get(`http://10.0.2.4:5000/CATALOG_WEBSERVICE_IP/put/${req.params.itemNUM}`, (res) => {
+https.get(`http://192.168.0.15:5000/CATALOG_WEBSERVICE_IP/put/${req.params.itemNUM}`, (res) => {
 res.on('data', (chunk) => {
     data += chunk;
     console.log(chunk);
 });
 res.on('end', () => {
     console.log(data);
+    if(data.length > 0){
  parse = JSON.parse(data);
  const book = {
     id : Book_Sold.length,
@@ -47,15 +48,19 @@ csvWriterOrder
     .writeRecords(Book_Sold)
     .then(() => console.log(``));
 
-});
+}
+else return res.send("book not found!")});
+})
+https.get(`http://localhost:5000/CATALOG_WEBSERVICE_IP/put/${req.params.itemNUM}`, (res) => {
+
 })
 
 .on('error', (error) => {
     console.log(error);
 });
 
-res.send(Book_Sold);
+return res.send(Book_Sold);
 });
 
-const port = process.env.PORT || 5000;
-app.listen(port, () => console.log(` Listeningon port $ { port }...`))
+const port = process.env.PORT || 5001;
+app.listen(port, () => console.log(` Listeningon port ${ port }...`))
