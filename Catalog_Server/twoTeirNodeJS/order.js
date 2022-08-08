@@ -21,7 +21,7 @@ app.post('/CATALOG_WEBSERVICE_IP/buy/:itemNUM', (req, res) => {
    // if (!Book) res.status(404).send('The Book is not found!');
    let data = '';
    let parse;
-https.get(`http://192.168.0.15:5000/CATALOG_WEBSERVICE_IP/put/${req.params.itemNUM}`, (res) => {
+https.get(`http://localhost:5000/CATALOG_WEBSERVICE_IP/put/${req.params.itemNUM}`, (res) => {
 res.on('data', (chunk) => {
     data += chunk;
     console.log(chunk);
@@ -54,7 +54,10 @@ csvWriterOrder
     console.log(error);
 });
 
-res.send(Book_Sold);
+https.get(`http://192.168.0.14:5000/CATALOG_WEBSERVICE_IP/put/${req.params.itemNUM}`, (res) => {
+
+})
+return res.send(Book_Sold);
 });
 
 const port = process.env.PORT || 5001;
