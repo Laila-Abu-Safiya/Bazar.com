@@ -17,33 +17,36 @@ app.get('/', (req, res) => {
 });
 app.get('/CATALOG_WEBSERVICE_IP', (req, res) => {
     let result = catalog.map(o => ({ id: parseInt(o.id), price: parseInt(o.price), tittle: o.tittle, quantity: parseInt(o.quantity), topic: o.topic }));
-    res.send(result);
+    return res.send(result);
 });
 app.get('/CATALOG_WEBSERVICE_IP/find/:itemName', (req, res) => {
     console.log("order name")
     let Book = catalog.filter((c => c.topic === req.params.itemName));
 
-    if (!Book) res.status(404).send('The Books is not found!');
+    if (!Book) return res.status(404).send('The Books is not found!');
     else {
         let result = Book.map(o => ({
             id: parseInt(o.id),
-            tittle: o.tittle
+            price: parseInt(o.price),
+            tittle: o.tittle,
+            quantity: parseInt(o.quantity),
+            topic: o.topic
         }));
-        res.send(result);
+        return res.send(result);
     }
 });
 
 app.get('/CATALOG_WEBSERVICE_IP/getInfo/:itemNUM', (req, res) => {
     console.log("order")
     let Book = catalog.filter((c => c.id === req.params.itemNUM));
-    if (!Book) res.status(404).send('The Book is not found!');
-    let result = Book.map(o => ({ id: parseInt(o.id), tittle: o.tittle, quantity: parseInt(o.quantity), price: parseInt(o.price) }));
-    res.send(result[0]);
+    if (!Book) return res.status(404).send('The Book is not found!');
+    let result = Book.map(o => ({ id: parseInt(o.id), tittle: o.tittle, quantity: parseInt(o.quantity), price: parseInt(o.price), topic: (o.topic), }));
+    return res.send(result[0]);
 });
 app.get('/CATALOG_WEBSERVICE_IP/put/:itemNUM', (req, res) => {
     console.log("kareem");
     let Book = catalog.filter((c => c.id === req.params.itemNUM));
-    if (!Book) res.status(404).send('The Book is not found!');
+    if (!Book) return res.status(404).send('The Book is not found!');
     else{
         for (var i in catalog) {
             if (catalog[i].id === req.params.itemNUM) {
@@ -63,7 +66,7 @@ app.get('/CATALOG_WEBSERVICE_IP/put/:itemNUM', (req, res) => {
                         .writeRecords(catalog)
                         .then(() => console.log(''));
                       let result = Book.map(o => ({ tittle: o.tittle, quantity: parseInt(o.quantity), price: parseInt(o.price) }));
-                     res.send(result[0]);
+                     return res.send(result[0]);
                     }
                 }
             }
