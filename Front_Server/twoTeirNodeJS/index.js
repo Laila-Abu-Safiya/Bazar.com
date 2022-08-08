@@ -35,7 +35,7 @@ app.get('/CATALOG_WEBSERVICE_IP/info/:itemNUM', (req, res1) => {//query to give 
     let data = '';
     //consloe.log("kareem")
     //send request to catalog server to give info for book due to item number
-    https.get(`http://localhost:5001/CATALOG_WEBSERVICE_IP/cacheInfo/${req.params.itemNUM}`, (res) => {//request to catalog server to check if the book exist an quantity>0
+    https.get(`http://localhost:5001/CATALOG_WEBSERVICE_IP/getInfo/${req.params.itemNUM}`, (res) => {//request to catalog server to check if the book exist an quantity>0
     res.on('data', (chunk) => {
         data += chunk;
     });
@@ -55,9 +55,9 @@ app.get('/CATALOG_WEBSERVICE_IP/info/:itemNUM', (req, res1) => {//query to give 
     });
 
     
-app.get('/CATALOG_WEBSERVICE_IP/pruchase/:itemNUM', (req, res1) => {//query to buy a specific book, it will send the request to order server
+app.post('/CATALOG_WEBSERVICE_IP/pruchase/:itemNUM', (req, res1) => {//query to buy a specific book, it will send the request to order server
     let data = '';
- https.get(`http://192.168.0.14:5000/CATALOG_WEBSERVICE_IP/buy/${req.params.itemNUM}`, (res) => {//send the request to order server
+ https.get(`http://localhost:5001/CATALOG_WEBSERVICE_IP/put/${req.params.itemNUM}`, (res) => {//send the request to order server
  res.on('data', (chunk) => {
      data += chunk;
  });
