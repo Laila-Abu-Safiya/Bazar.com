@@ -15,7 +15,14 @@ const app = express();
 app.get('/', (req, res) => {
     res.send('Hello world!!!');
 });
-app.get('/CATALOG_WEBSERVICE_IP', (req, res) => {
+app.get('/CATALOG_WEBSERVICE_IP/:topic', (req, res) => {
+    let count =0;
+    for (var i in catalog){
+        if(catalog[i].topic === req.params.topic){
+            count ++;
+        }
+    }
+    res.send(count.toString())
     let result = catalog.map(o => ({ id: parseInt(o.id), price: parseInt(o.price), tittle: o.tittle, quantity: parseInt(o.quantity), topic: o.topic }));
     return res.send(result);
 });
@@ -23,7 +30,7 @@ app.get('/CATALOG_WEBSERVICE_IP/find/:itemName', (req, res) => {
     console.log("order name")
     let Book = catalog.filter((c => c.topic === req.params.itemName));
 
-    if (!Book) return res.status(404).send('The Books is not found!');
+    if (Book.length === 0) return res.status(404).send("0");
     else {
         let result = Book.map(o => ({
             id: parseInt(o.id),
@@ -39,14 +46,14 @@ app.get('/CATALOG_WEBSERVICE_IP/find/:itemName', (req, res) => {
 app.get('/CATALOG_WEBSERVICE_IP/getInfo/:itemNUM', (req, res) => {
     console.log("order")
     let Book = catalog.filter((c => c.id === req.params.itemNUM));
-    if (!Book) return res.status(404).send('The Book is not found!');
-    let result = Book.map(o => ({ id: parseInt(o.id), tittle: o.tittle, quantity: parseInt(o.quantity), price: parseInt(o.price), topic: (o.topic), }));
-    return res.send(result[0]);
+    if (Book.length === 0) return res.status(404).send("0");
+    else {let result = Book.map(o => ({ id: parseInt(o.id), tittle: o.tittle, quantity: parseInt(o.quantity), price: parseInt(o.price), topic: (o.topic), }));
+    return res.send(result[0]);}
 });
 app.get('/CATALOG_WEBSERVICE_IP/put/:itemNUM', (req, res) => {
     console.log("kareem");
     let Book = catalog.filter((c => c.id === req.params.itemNUM));
-    if (!Book) return res.status(404).send('The Book is not found!');
+    if (Book.length === 0) return res.status(404).send("0");
     else{
         for (var i in catalog) {
             if (catalog[i].id === req.params.itemNUM) {
