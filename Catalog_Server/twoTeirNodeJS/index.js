@@ -1,65 +1,84 @@
 const fs = require('fs');
-const https =require('http'); 
 const { parse } = require('csv-parse');
-
 const createCsvWriter = require('csv-writer').createObjectCsvWriter;
-
-var Book_Sold = []
-var parser_Order = parse({ columns: true }, function(err, Order) {
-    Book_Sold = Order;
+var catalog = []
+var parser = parse({ columns: true }, function(err, Catalog) {
+    catalog = Catalog;
 });
 
-fs.createReadStream('order.csv').pipe(parser_Order);
+fs.createReadStream('catalog.csv').pipe(parser);
 
 const express = require('express');
-const { text, response } = require('express');
+const { text } = require('express');
 const e = require('express');
-
 const app = express();
-app.get('/CATALOG_WEBSERVICE_IP/buy/:itemNUM', (req, res1) => {
-   // let Book = catalog.filter((c => c.id === req.params.itemNUM));
-   // if (!Book) res.status(404).send('The Book is not found!');
-   let data = '';
-   let parse;
-https.get(`http://localhost:5000/CATALOG_WEBSERVICE_IP/put/${req.params.itemNUM}`, (res) => {
-res.on('data', (chunk) => {
-    data += chunk;
+app.get('/', (req, res) => {
+    res.send('Hello world!!!');
 });
-res.on('end', () => {
-if(data.toString() === "0"){
-    return res1.status(404).send("0")
-} 
-parse = JSON.parse(data);
- const book = {
-    id : Book_Sold.length +1,
-    tittle : parse.tittle,
-    price: parse.price
- } 
- Book_Sold.push(book);  
- const csvWriterOrder = createCsvWriter({
-    path: 'order.csv',
-    header: [
-        { id: 'id', title: 'id' },
-        { id: 'tittle', title: 'tittle' },
-        { id: 'price', title: 'price' }
-    ]
+app.get('/CATALOG_WEBSERVICE_IP/:topic', (req, res) => {
+    let count = 0;
+    let result = catalog.map(o => ({ id: parseInt(o.id), price: parseInt(o.price), tittle: o.tittle, quantity: parseInt(o.quantity), topic: o.topic }));
+    for (var i in catalog) {
+        if(catalog[i].topic === req.params.topic){
+            count++;
+        }
+    }
+    res.send(count.toString());
 });
-csvWriterOrder
-    .writeRecords(Book_Sold)
-    .then(() => console.log(``));
+app.get('/CATALOG_WEBSERVICE_IP/find/:itemName', (req, res) => {
+    console.log(req.params.itemName)
+    let Book = catalog.filter((c => c.topic === req.params.itemName));
 
-});
-})
-
-.on('error', (error) => {
-    console.log(error);
+    if (Book.length === 0) return res.status(404).send("0");
+    else {
+        let result = Book.map(o => ({
+            id: parseInt(o.id),
+            price: parseInt(o.price),
+            tittle: o.tittle,
+            quantity: parseInt(o.quantity),
+            topic: o.topic 
+        }));
+        res.send(result);
+    }
 });
 
-https.get(`http://192.168.0.14:5000/CATALOG_WEBSERVICE_IP/put/${req.params.itemNUM}`, (res) => {
+app.get('/CATALOG_WEBSERVICE_IP/getInfo/:itemNUM', (req, res) => {
+    console.log("catalog")
+    let Book = catalog.filter((c => c.id === req.params.itemNUM));
 
-})
-return res1.send(Book_Sold);
+    if (Book.length === 0) return res.status(404).send("0");
+    else {let result = Book.map(o => ({ tittle: o.tittle, quantity: parseInt(o.quantity), price: parseInt(o.price), topic: o.topic }));
+    res.send(result[0]);}
 });
 
-const port = process.env.PORT || 5001;
-app.listen(port, () => console.log(` Listeningon port $ { port }...`))
+app.get('/CATALOG_WEBSERVICE_IP/put/:itemNUM', (req, res) => {
+    console.log("kareem");
+    let Book = catalog.filter((c => c.id === req.params.itemNUM));
+    if (Book.length === 0) res.status(404).send("0");
+    else{
+        for (var i in catalog) {
+            if (catalog[i].id === req.params.itemNUM) {
+                if (catalog[i].quantity > 0) {
+                    catalog[i].quantity = `${(parseInt(catalog[i].quantity) - 1)}`;
+                    const csvWriter = createCsvWriter({
+                        path: 'catalog.csv',
+                        header: [
+                            { id: 'id', title: 'id' },
+                            { id: 'price', title: 'price' },
+                            { id: 'tittle', title: 'tittle' },
+                            { id: 'quantity', title: 'quantity' },
+                            { id: 'topic', title: 'topic' }
+                        ]
+                    });
+                    csvWriter
+                        .writeRecords(catalog)
+                        .then(() => console.log(''));
+                      let result = Book.map(o => ({ tittle: o.tittle, quantity: parseInt(o.quantity), price: parseInt(o.price) }));
+                     res.send(result[0]);}
+                }
+            }
+        }
+});
+
+const port = process.env.PORT||5000;
+app.listen(port, () => console.log(` Listeningon port ${ port }...`))
